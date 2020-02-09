@@ -64,6 +64,20 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+      app.get('/api/getDiscList', (req, res) => {
+        var url = 'http://ustbhuangyi.com/music/api/getDiscList'
+        axios.get(url, {
+          headers: {
+            referer: 'http://ustbhuangyi.com',
+            host: 'ustbhuangyi.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
     }
   },
   plugins: [
