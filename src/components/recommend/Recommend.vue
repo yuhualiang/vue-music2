@@ -26,7 +26,9 @@
           </ul>
         </div>
       </div>
-      <loading v-show="!discList.length"></loading>
+      <div class="loading-container">
+        <loading v-show="!discList.length"></loading>
+      </div>
     </scroll>
   </div>
 </template>
@@ -121,4 +123,9 @@ export default {
             color: $color-text
           .desc
             color: $color-text-d
+    .loading-container
+      position: absolute
+      width: 100%
+      top: 50%
+      transform: translateY(-50%)
 </style>

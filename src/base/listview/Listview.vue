@@ -8,7 +8,9 @@
           class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li v-for="item in group.items" :key="item.id" class="list-group-item">
+          <li v-for="item in group.items"
+              :key="item.id" @click="selectItem(item)"
+              class="list-group-item">
             <img v-lazy="item.avatar" class="avatar">
             <span class="name">{{item.name}}</span>
           </li>
@@ -26,14 +28,22 @@
         </li>
       </ul>
     </div>
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
+      <div class="list-fixed-title">{{fixedTitle}}</div>
+    </div>
+    <div class="loading-container" v-show="!data.length">
+      <loading></loading>
+    </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from 'base/scroll/Scroll'
+import Loading from 'base/loading/Loading'
 import { getData } from 'common/js/dom'
 
 const ANCHOR_HEIGHT = 18
+const TITLE_HEIGHT = 30
 
 export default {
   name: 'BaseListView',
@@ -46,8 +56,18 @@ export default {
   data() {
     return {
       currentIndex: 0,
-      scrollY: -1
+      scrollY: -1,
+      diff: 1
     }
+  },
+  created() {
+    this.touch = {}
+    this.probeType = 3
+    this.listenScroll = true
+    this.listHeight = []
+  },
+  mounted() {
+    this.$refs.listview.refresh()
   },
   watch: {
     data() {
@@ -68,27 +88,33 @@ export default {
         let height2 = listHeight[i + 1]
         if (-newY >= height1 && -newY < height2) {
           this.currentIndex = i
+          this.diff = height2 + newY
           return
         }
       }
       // 当滚动到底部，且-newY大于最后一个元素的上限
       this.currentIndex = listHeight.length - 2
+    },
+    diff(newDiff) {
+      let fixedTop = (newDiff > 0 && newDiff < TITLE_HEIGHT) ? newDiff - TITLE_HEIGHT : 0
+      if (this.fixedTop === fixedTop) {
+        return
+      }
+      this.fixedTop = fixedTop
+      this.$refs.fixed.style.transform = `translate3d(0, ${fixedTop}px, 0)`
     }
-  },
-  components: {
-    Scroll
-  },
-  created() {
-    this.touch = {}
-    this.probeType = 3
-    this.listenScroll = true
-    this.listHeight = []
   },
   computed: {
     shortcutList() {
       return this.data.map((group) => {
         return group.title.substr(0, 1)
       })
+    },
+    fixedTitle() {
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     }
   },
   methods: {
@@ -109,6 +135,9 @@ export default {
     onScroll(pos) {
       this.scrollY = pos.y
     },
+    selectItem(item) {
+      this.$emit('select', item)
+    },
     _scrollTo(index) {
       index = parseInt(index)
       if (!index && index !== 0) {
@@ -119,7 +148,8 @@ export default {
       } else if (index > this.listHeight.length - 2) {
         index = this.listHeight.length - 2
       }
-      this.scrollY = -this.listHeight[index]
+      // this.scrollY = -this.listHeight[index]
+      this.currentIndex = index
       this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
     },
     _calculateHeight() {
@@ -133,6 +163,9 @@ export default {
         this.listHeight.push(height)
       }
     }
+  },
+  components: {
+    Scroll, Loading
   }
 }
 </script>
@@ -184,4 +217,21 @@ export default {
         font-size $font-size-small
         &.current
           color $color-theme
+    .list-fixed
+      position absolute
+      top 0
+      left 0
+      width 100%
+      &-title
+        height 30px
+        line-height 30px
+        padding-left 20px
+        font-size $font-size-small
+        color $color-text-l
+        background $color-highlight-background
+    .loading-container
+      position: absolute
+      width: 100%
+      top: 50%
+      transform: translateY(-50%)
 </style>
