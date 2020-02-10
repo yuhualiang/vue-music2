@@ -12,9 +12,12 @@ const portfinder = require('portfinder')
 
 const express = require('express')
 const axios = require('axios')
+const bodyParser = require('body-parser')
 const app = express()
 const apiRoutes = express.Router()
 app.use('api/', apiRoutes)
+app.use(bodyParser.urlencoded({extended: true}))
+const querystring = require('querystring')
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
@@ -54,10 +57,25 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         var url = 'http://ustbhuangyi.com/music/api/getTopBanner'
         axios.get(url, {
           headers: {
-            referer: 'http://ustbhuangyi.com/',
+            referer: 'http://ustbhuangyi.com/music/',
             host: 'ustbhuangyi.com'
           },
           params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+      // 获取歌曲播放地址
+      app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
+        const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+        axios.post(url, req.body, {
+          headers: {
+            referer: 'http://ustbhuangyi.com/music/',
+            origin: 'http://ustbhuangyi.com',
+            'Content-type': 'application/x-www-form-urlencoded'
+          }
         }).then((response) => {
           res.json(response.data)
         }).catch((e) => {

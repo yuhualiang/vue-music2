@@ -5,8 +5,56 @@
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
+import {getSingerDetail} from 'api/singer'
+import {ERR_OK} from 'api/config'
+// import {createSong} from 'common/js/song'
+import {getPurlUrl} from 'api/song'
 export default {
-  name: 'SingerDetail'
+  name: 'SingerDetail',
+  computed: {
+    ...mapGetters([
+      'singer'
+    ])
+  },
+  data() {
+    return {
+      songs: []
+    }
+  },
+  created() {
+    this._getDetail()
+  },
+  methods: {
+    _getDetail() {
+      if (!this.singer.id) {
+        this.$router.push('/singer')
+        return
+      }
+      getSingerDetail(this.singer.id).then((res) => {
+        if (res.code === ERR_OK) {
+          console.log(res.data.list)
+          // getPurlUrl(res.data.list).then((respo) => {
+          //   console.log(respo)
+          // })
+          this.songs = this._normalizeSongs(res.data.list)
+        }
+      })
+    },
+    _normalizeSongs(list) {
+      let ret = []
+      let songmid = []
+      list.forEach((item) => {
+        let {musicData} = item
+        songmid.push(musicData.albummid)
+      })
+      console.log(songmid)
+      getPurlUrl(songmid).then((res) => {
+        console.log('getPurUrl: ' + res)
+      })
+      return ret
+    }
+  }
 }
 </script>
 
