@@ -53,8 +53,11 @@ export function getSongVkey(songmid) {
 }
 export function getPurlUrl(songmid) {
   const url = '/api/getPurlUrl'
+  const songtype = []
+  for (let i = 0; i < songmid.length; i++) {
+    songtype.push(0)
+  }
   const data = Object.assign({}, commonParams, {
-    g_tk: 5381,
     format: 'json',
     platform: 'h5',
     needNewCode: 1,
@@ -67,8 +70,8 @@ export function getPurlUrl(songmid) {
       'method': 'CgiGetVkey',
       'param': {
         'guid': '5764862861',
-        'songmid': ['003y8dsH2wBHlo', '000DMpJ73yeITP', '000dcZ9I1nzO62', '000QgFcm0v8WaF', '000dcZ9I1nzO62'],
-        'songtype': [0, 0, 0, 0, 0],
+        'songmid': songmid,
+        'songtype': songtype,
         'uin': '0',
         'loginflag': 0,
         'platform': '23'

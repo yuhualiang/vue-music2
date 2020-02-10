@@ -8,7 +8,7 @@
 import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
 import {ERR_OK} from 'api/config'
-// import {createSong} from 'common/js/song'
+import {createSong} from 'common/js/song'
 import {getPurlUrl} from 'api/song'
 export default {
   name: 'SingerDetail',
@@ -33,11 +33,8 @@ export default {
       }
       getSingerDetail(this.singer.id).then((res) => {
         if (res.code === ERR_OK) {
-          console.log(res.data.list)
-          // getPurlUrl(res.data.list).then((respo) => {
-          //   console.log(respo)
-          // })
           this.songs = this._normalizeSongs(res.data.list)
+          console.log(this.songs)
         }
       })
     },
@@ -46,14 +43,24 @@ export default {
       let songmid = []
       list.forEach((item) => {
         let {musicData} = item
-        songmid.push(musicData.albummid)
+        if (musicData.songid && musicData.albummid) {
+          ret.push(musicData)
+          songmid.push(musicData.songmid)
+        }
       })
-      console.log(songmid)
+      const retUrls = []
       getPurlUrl(songmid).then((res) => {
-        console.log('getPurUrl: ' + res)
+        if (res.code === ERR_OK) {
+          let urls = res.req_0.data.midurlinfo
+          for (let i = 0; i < ret.length; i++) {
+            ret[i].purl = urls[i].purl
+            retUrls.push(createSong(ret[i]))
+          }
+        }
       })
-      return ret
+      return retUrls
     }
+
   }
 }
 </script>
