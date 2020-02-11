@@ -9,7 +9,7 @@ import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import {createSong} from 'common/js/song'
-import {getPurlUrl} from 'api/song'
+import {getPurlUrl} from 'api/song' /* 获取歌曲的播放地址 */
 export default {
   name: 'SingerDetail',
   computed: {
