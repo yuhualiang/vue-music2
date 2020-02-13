@@ -1,12 +1,14 @@
 <template>
-  <div class="player" v-show="playlist.length">
+  <div class="player" v-show="playlist.length>0">
     <transition name="normal"
                 @enter="enter"
                 @afer-enter="afterEnter"
+                @leave="leave"
+                @after-leave="afterLeave"
     >
-      <div class="normal-player" v-show="fullScreen">
+      <div class="normal-player" v-if="fullScreen">
         <div class="background">
-          <img :src="currentSong.image">
+          <img width="100%" height="100%" :src="currentSong.image">
         </div>
         <div class="top">
           <div class="back" @click="back"><i class="icon-back"></i></div>
@@ -55,8 +57,8 @@
 <script type="text/ecmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
-// import {prefixStyle} from 'common/js/dom'
-// const transform = prefixStyle('transform')
+import {prefixStyle} from 'common/js/dom'
+const transform = prefixStyle('transform')
 // const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
@@ -80,13 +82,13 @@ export default {
 
       let animation = {
         0: {
-          transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+          transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`
         },
         60: {
-          transform: `translate3d(0,0,0) scale(1.1)`
+          transform: `translate3d(0, 0, 0) scale(1.1)`
         },
         100: {
-          transform: `translate3d(0,0,0) scale(1)`
+          transform: `translate3d(0, 0, 0) scale(1)`
         }
       }
 
@@ -102,20 +104,19 @@ export default {
       animations.runAnimation(this.$refs.cdWrapper, 'move', done)
     },
     afterEnter() {
-      console.log('done')
       animations.unregisterAnimation('move')
       this.$refs.cdWrapper.style.animation = ''
     },
-    // leave(el, done) {
-    //   this.$refs.cdWrapper.style.transition = 'all 0.4s'
-    //   const {x, y, scale} = this._getPosAndScale()
-    //   this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
-    //   this.$refs.cdWrapper.addEventListener('transitionend', done)
-    // },
-    // afterLeave() {
-    //   this.$refs.cdWrapper.style.transition = ''
-    //   this.$refs.cdWrapper.style[transform] = ''
-    // },
+    leave(el, done) {
+      this.$refs.cdWrapper.style.transition = 'all 0.4s'
+      const {x, y, scale} = this._getPosAndScale()
+      this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+      this.$refs.cdWrapper.addEventListener('transitionend', done)
+    },
+    afterLeave() {
+      this.$refs.cdWrapper.style.transition = ''
+      this.$refs.cdWrapper.style[transform] = ''
+    },
     _getPosAndScale() {
       const targetWidth = 40
       const paddingLeft = 40
@@ -125,7 +126,11 @@ export default {
       const scale = targetWidth / width
       const x = -(window.innerWidth / 2 - paddingLeft)
       const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
-      return { x, y, scale }
+      return {
+        x,
+        y,
+        scale
+      }
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
@@ -305,4 +310,9 @@ export default {
         .icon-playlist
           font-size 30px
           color $color-theme-d
+  @keyframes rotate
+    0%
+      transform: rotate(0)
+    100%
+      transform: rotate(360deg)
 </style>
