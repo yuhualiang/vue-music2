@@ -50,6 +50,7 @@
         <div class="control"><i class="icon-playlist"></i></div>
       </div>
     </transition>
+    <audio ref="audio" :src="currentSong.url"></audio>
   </div>
 </template>
 
@@ -68,6 +69,13 @@ export default {
       'fullScreen',
       'currentSong'
     ])
+  },
+  watch: {
+    currentSong() {
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    }
   },
   methods: {
     back() {
@@ -105,14 +113,12 @@ export default {
     afterEnter() {
       animations.unregisterAnimation('move')
       this.$refs.cdWrapper.style.animation = ''
-      console.log('afterEnter')
     },
     leave(el, done) {
       this.$refs.cdWrapper.style.transition = 'all 0.4s'
       const {x, y, scale} = this._getPosAndScale()
       this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
       this.$refs.cdWrapper.addEventListener('transitionend', done)
-      console.log('leave')
     },
     afterLeave() {
       this.$nextTick(() => {
