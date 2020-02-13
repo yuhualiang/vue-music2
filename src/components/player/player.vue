@@ -2,11 +2,11 @@
   <div class="player" v-show="playlist.length>0">
     <transition name="normal"
                 @enter="enter"
-                @afer-enter="afterEnter"
+                @after-enter="afterEnter"
                 @leave="leave"
                 @after-leave="afterLeave"
     >
-      <div class="normal-player" v-if="fullScreen">
+      <div class="normal-player" v-show="fullScreen">
         <div class="background">
           <img width="100%" height="100%" :src="currentSong.image">
         </div>
@@ -22,7 +22,6 @@
             </div>
           </div>
           <div class="middle-r">
-
           </div>
         </div>
         <div class="bottom">
@@ -106,16 +105,20 @@ export default {
     afterEnter() {
       animations.unregisterAnimation('move')
       this.$refs.cdWrapper.style.animation = ''
+      console.log('afterEnter')
     },
     leave(el, done) {
       this.$refs.cdWrapper.style.transition = 'all 0.4s'
       const {x, y, scale} = this._getPosAndScale()
       this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
       this.$refs.cdWrapper.addEventListener('transitionend', done)
+      console.log('leave')
     },
     afterLeave() {
-      this.$refs.cdWrapper.style.transition = ''
-      this.$refs.cdWrapper.style[transform] = ''
+      this.$nextTick(() => {
+        this.$refs.cdWrapper.style.transition = ''
+        this.$refs.cdWrapper.style[transform] = ''
+      })
     },
     _getPosAndScale() {
       const targetWidth = 40
