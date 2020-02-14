@@ -62,6 +62,9 @@ export default {
         if (res.code === ERR_OK) {
           let urls = res.req_0.data.midurlinfo
           for (let i = 0; i < ret.length; i++) {
+            if (!urls[i].purl) {
+              continue
+            }
             ret[i].purl = urls[i].purl
             retUrls.push(createSong(ret[i]))
           }
