@@ -27,9 +27,9 @@
         <div class="bottom">
           <div class="operators">
             <div class="icon i-left"><i class="icon-random"></i></div>
-            <div class="icon i-left"><i @click="prev" class="icon-prev"></i></div>
-            <div class="icon i-center"><i @click="togglePlaying" class="needsclick" :class="playIcon"></i></div>
-            <div class="icon i-right"><i @click="next" class="icon-next"></i></div>
+            <div class="icon i-left" :class="disableCls"><i @click="prev" class="icon-prev"></i></div>
+            <div class="icon i-center" :class="disableCls"><i @click="togglePlaying" class="needsclick" :class="playIcon"></i></div>
+            <div class="icon i-right" :class="disableCls"><i @click="next" class="icon-next"></i></div>
             <div class="icon i-right"><i class="icon icon-not-favorite"></i></div>
           </div>
         </div>
@@ -79,6 +79,9 @@ export default {
     },
     miniIcon() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    disableCls() {
+      return this.songReady ? '' : 'disable'
     },
     ...mapGetters([
       'playlist',
@@ -136,7 +139,9 @@ export default {
     ready() {
       this.songReady = true
     },
-    error() {},
+    error() {
+      this.songReady = true
+    },
     back() {
       this.setFullScreen(false)
     },
