@@ -25,8 +25,15 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @percentChange="onPercentChange"></progress-bar>
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
-            <div class="icon i-left"><i class="icon-random"></i></div>
+            <div class="icon i-left" @click="changeMode"><i :class="iconMode"></i></div>
             <div class="icon i-left" :class="disableCls"><i @click="prev" class="icon-prev"></i></div>
             <div class="icon i-center" :class="disableCls"><i @click="togglePlaying" class="needsclick" :class="playIcon"></i></div>
             <div class="icon i-right" :class="disableCls"><i @click="next" class="icon-next"></i></div>
@@ -47,16 +54,25 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-            <i @click.stop="togglePlaying" :class="miniIcon"></i>
+            <progress-circle :radius="radius" :percent="percent">
+              <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+            </progress-circle>
         </div>
         <div class="control"><i class="icon-playlist"></i></div>
       </div>
     </transition>
-    <audio ref="audio" @canplay="ready" @error="error" :src="currentSong.url"></audio>
+    <audio ref="audio" :src="currentSong.url"
+            @canplay="ready"
+            @error="error"
+            @timeupdate="updateTime">
+    </audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import ProgressBar from 'base/progress-bar/progress-bar'
+import ProgressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config'
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
@@ -67,7 +83,9 @@ export default {
   name: 'Player',
   data() {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: 0,
+      radius: 32
     }
   },
   computed: {
@@ -80,15 +98,22 @@ export default {
     miniIcon() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
+    iconMode() {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
     disableCls() {
       return this.songReady ? '' : 'disable'
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
       'playlist',
       'fullScreen',
       'currentSong',
       'playing',
-      'currentIndex'
+      'currentIndex',
+      'mode'
     ])
   },
   watch: {
@@ -105,6 +130,9 @@ export default {
     }
   },
   methods: {
+    updateTime(e) {
+      this.currentTime = e.target.currentTime
+    },
     prev() {
       if (!this.songReady) {
         return
@@ -205,11 +233,32 @@ export default {
         scale
       }
     },
+    onPercentChange(percent) {
+      const currentTime = this.currentSong.duration * percent
+      this.$refs.audio.currentTime = currentTime
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+    },
+    changeMode() {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingStage: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX'
-    })
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE'
+    }),
+    format(interval) {
+      interval = interval | 0
+      let minitues = interval / 60 | 0
+      let seconds = interval % 60
+      return `${minitues}:${seconds.toString().padStart(2, '0')}`
+    }
+  },
+  components: {
+    ProgressBar, ProgressCircle
   }
 }
 </script>
@@ -312,6 +361,23 @@ export default {
         position: absolute
         bottom: 50px
         width: 100%
+        .progress-wrapper
+          display flex
+          align-items center
+          width 80%
+          margin 0 auto
+          padding 10px 0
+          .time
+            color $color-text
+            font-size $font-size-small
+            flex 0 0 30px
+            width 30px
+            &.time-l
+              text-align left
+            &.time-r
+              text-align right
+          .progress-bar-wrapper
+            flex 1
         .operators
           display: flex
           align-items: center
@@ -393,6 +459,11 @@ export default {
         .icon-playlist, .icon-play-mini, .icon-pause-mini
           font-size 30px
           color $color-theme-d
+        .icon-mini
+          font-size: 32px
+          position: absolute
+          left: 0
+          top: 0
   @keyframes rotate
     0%
       transform: rotate(0)
