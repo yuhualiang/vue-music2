@@ -1,6 +1,29 @@
 import axios from 'axios'
 import { commonParams } from './config'
 
+export function getLyric(songmid) {
+  const url = 'api/lyric'
+  const data = Object.assign({}, commonParams, {
+    g_tk: 1928093487,
+    notice: 0,
+    format: 'json',
+    songmid: songmid,
+    // platform: 'yqq',
+    platform: 'yqq.json',
+    hostUin: 0,
+    loginUin: 0,
+    needNewCode: 0,
+    inCharset: 'utf8',
+    // categoryId: 10000000,
+    pcachetime: +new Date(),
+    '-': 'MusicJsonCallback_lrc'
+  })
+  return axios.get(url, {
+    params: data
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
 export function getPurlUrl(songmid) {
   const url = '/api/getPurlUrl'
   const songtype = []

@@ -67,6 +67,43 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+      app.get('/api/getLyric', (req, res) => {
+        var url = 'http://ustbhuangyi.com/music/api/lyric'
+        axios.get(url, {
+          headers: {
+            referer: 'http://ustbhuangyi.com/music/',
+            host: 'ustbhuangyi.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json((response.data))
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+      app.get('/api/lyric', function (req, res) {
+        var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          var ret = response.data
+          if (typeof ret === 'string') {
+            var reg = /^\w+\(({[^()]+})\)$/
+            var matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
+            }
+          }
+          res.json(ret)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
       // 获取歌曲播放地址
       app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
         const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'

@@ -78,6 +78,7 @@ import {playMode} from 'common/js/config'
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
+import Lyric from 'lyric-parser'
 const transform = prefixStyle('transform')
 // const transitionDuration = prefixStyle('transitionDuration')
 
@@ -87,6 +88,7 @@ export default {
     return {
       songReady: false,
       currentTime: 0,
+      currentLyric: null,
       radius: 32
     }
   },
@@ -132,10 +134,17 @@ export default {
       const audio = this.$refs.audio
       this.$nextTick(() => {
         newVal ? audio.play() : audio.pause()
+        this._getLyric()
       })
     }
   },
   methods: {
+    _getLyric() {
+      this.currentSong.getLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric)
+        console.log(this.currentLyric)
+      })
+    },
     updateTime(e) {
       this.currentTime = e.target.currentTime
     },
