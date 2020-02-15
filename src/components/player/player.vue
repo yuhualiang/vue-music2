@@ -64,12 +64,14 @@
     <audio ref="audio" :src="currentSong.url"
             @canplay="ready"
             @error="error"
-            @timeupdate="updateTime">
+            @timeupdate="updateTime"
+            @ended="end">
     </audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import {shuffle} from 'common/js/util'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
@@ -113,11 +115,15 @@ export default {
       'currentSong',
       'playing',
       'currentIndex',
-      'mode'
+      'mode',
+      'sequenceList'
     ])
   },
   watch: {
-    currentSong() {
+    currentSong(newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return
+      }
       this.$nextTick(() => {
         this.$refs.audio.play()
       })
@@ -169,6 +175,17 @@ export default {
     },
     error() {
       this.songReady = true
+    },
+    end() {
+      if (this.mode === playMode.loop) {
+        this._loop()
+      } else {
+        this.next()
+      }
+    },
+    _loop() {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
     },
     back() {
       this.setFullScreen(false)
@@ -243,12 +260,27 @@ export default {
     changeMode() {
       const mode = (this.mode + 1) % 3
       this.setPlayMode(mode)
+      let list = null
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this._resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    _resetCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingStage: 'SET_PLAYING_STATE',
       setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE'
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAYLIST'
     }),
     format(interval) {
       interval = interval | 0
