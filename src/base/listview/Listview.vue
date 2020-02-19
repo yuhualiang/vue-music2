@@ -135,6 +135,9 @@ export default {
     onScroll(pos) {
       this.scrollY = pos.y
     },
+    refresh() {
+      this.$refs.listview.refresh()
+    },
     selectItem(item) {
       this.$emit('select', item)
     },
