@@ -1,4 +1,7 @@
 import {mapGetters} from 'vuex'
+// import {createSong} from 'common/js/song'
+// import {getPurlUrl} from 'api/song' /* 获取歌曲的播放地址 */
+// import { ERR_OK } from 'api/config'
 
 export const playlistMixin = {
   computed: {

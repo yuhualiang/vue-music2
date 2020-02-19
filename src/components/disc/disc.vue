@@ -1,48 +1,47 @@
 <template>
-  <transition name="slide" appear>
-    <music-list :title="title"
-      :bg-image="bgImage" :songs="songs">
-    </music-list>
+  <transition name="slide">
+    <music-list :songs="songs" :title="title" :bg-image="bgImage"></music-list>
   </transition>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
-import {getSingerDetail} from 'api/singer'
+import MusicList from 'components/music-list/music-list'
+import { mapGetters } from 'vuex'
+import { getCdInfo } from 'api/recommend'
 import {createSong} from 'common/js/song'
 import {getPurlUrl} from 'api/song' /* 获取歌曲的播放地址 */
 import { ERR_OK } from 'api/config'
-import MusicList from 'components/music-list/music-list'
+
 export default {
-  name: 'SingerDetail',
-  computed: {
-    ...mapGetters([
-      'singer'
-    ]),
-    title() {
-      return this.singer.name
-    },
-    bgImage() {
-      return this.singer.avatar
-    }
-  },
+  name: 'Disc',
   data() {
     return {
       songs: []
     }
   },
+  computed: {
+    title() {
+      return this.disc.dissname
+    },
+    bgImage() {
+      return this.disc.imgurl
+    },
+    ...mapGetters([
+      'disc'
+    ])
+  },
   created() {
-    this._getDetail()
+    this._getCdInfo()
   },
   methods: {
-    _getDetail() {
-      if (!this.singer.id) {
-        this.$router.push('/singer')
+    _getCdInfo() {
+      if (!this.disc.dissid) {
+        this.$router.push('/recommend')
         return
       }
-      getSingerDetail(this.singer.id).then((res) => {
+      getCdInfo(this.disc.dissid).then((res) => {
         if (res.code === ERR_OK) {
-          this.songs = this._normalizeSongs(res.data.list)
+          this.songs = this._normalizeSongs(res.cdlist[0].songlist)
         }
       })
     },
@@ -50,10 +49,9 @@ export default {
       let ret = []
       let songmid = []
       list.forEach((item) => {
-        let {musicData} = item
-        if (musicData.songid && musicData.albummid) {
-          ret.push(musicData)
-          songmid.push(musicData.songmid)
+        if (item.songid && item.albummid) {
+          ret.push(item)
+          songmid.push(item.songmid)
         }
       })
       const retUrls = []
@@ -71,7 +69,6 @@ export default {
       })
       return retUrls
     }
-
   },
   components: {
     MusicList
