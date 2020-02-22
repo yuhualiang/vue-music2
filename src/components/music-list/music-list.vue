@@ -15,7 +15,7 @@
     <scroll class="list" ref="list" @scroll="scroll"
             :listenScroll="listenScroll" :probeType="probeType">
       <div class="song-list-wrapper">
-        <song-list :songs="songs" @select="selectItem"></song-list>
+        <song-list :rank="rank" :songs="songs" @select="selectItem"></song-list>
       </div>
     </scroll>
     <div class="filter"></div>
@@ -48,6 +48,10 @@ export default {
     songs: {
       type: Array,
       default: () => { return [] }
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
