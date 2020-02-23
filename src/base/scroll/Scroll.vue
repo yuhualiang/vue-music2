@@ -67,7 +67,7 @@ export default {
       }
       /* 这个啥意思 */
       if (this.pullup) {
-        this.scroll.on('crollEnd', () => {
+        this.scroll.on('scrollEnd', () => {
           if (this.scroll.y <= this.scroll.maxScrollY + 50) {
             this.$emit('scrollToEnd')
           }

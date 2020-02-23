@@ -53,6 +53,30 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       poll: config.dev.poll,
     },
     before(app) {
+      app.get('/api/search', (req, res) => {
+        var url = 'http://ustbhuangyi.com/music/api/search'
+
+        axios.get(url, {
+          headers: {
+            referer: 'http://ustbhuangyi.com/music/',
+            host: 'ustbhuangyi.com'
+          },
+          params: req.query
+        }).then((response) => {
+          var ret = response.data
+          if (typeof ret === 'string') {
+            var reg = /^\w+\(({[^()]+})\)$/
+            var matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
+            }
+          }
+          res.json(ret)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+
       app.get('/api/getCdInfo', (req, res) => {
         var url = 'http://ustbhuangyi.com/music/api/getCdInfo'
         axios.get(url, {
