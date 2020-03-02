@@ -2,8 +2,8 @@
   <div class="recommend" ref="recommend">
     <scroll ref="scroll" :data="discList" class="recommend-content">
       <div>
-        <div v-if="sliderData.length" class="slider-wrapper">
-          <slider>
+        <div class="slider-wrapper">
+          <slider v-if="sliderData.length">
             <div v-for="item in sliderData" :key="item.id">
               <a :href="item.linkUrl">
                 <img @load="loadImage" :src="item.picUrl" class="needsclick">
@@ -111,6 +111,8 @@ export default {
       .slider-wrapper
         position relative
         width 100%
+        height 0
+        padding-bottom 40%
         overflow hidden
       .recommend-list
         .list-title
