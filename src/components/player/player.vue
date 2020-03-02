@@ -91,7 +91,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import {shuffle} from 'common/js/util'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
@@ -101,11 +100,13 @@ import {prefixStyle} from 'common/js/dom'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/Scroll'
 import Playlist from 'components/playlist/playlist'
+import {playerMixin} from 'common/js/mixin'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
+  mixins: [playerMixin],
   name: 'Player',
   data() {
     return {
@@ -128,9 +129,6 @@ export default {
     miniIcon() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
-    iconMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     disableCls() {
       return this.songReady ? '' : 'disable'
     },
@@ -138,13 +136,9 @@ export default {
       return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
-      'playlist',
-      'fullScreen',
-      'currentSong',
       'playing',
-      'currentIndex',
-      'mode',
-      'sequenceList'
+      'fullScreen',
+      'currentIndex'
     ])
   },
   created() {
@@ -399,30 +393,8 @@ export default {
         this.currentLyric.seek(currentTime * 1000)
       }
     },
-    changeMode() {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-      let list = null
-      if (mode === playMode.random) {
-        list = shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this._resetCurrentIndex(list)
-      this.setPlayList(list)
-    },
-    _resetCurrentIndex(list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
-    },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingStage: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE',
-      setPlayList: 'SET_PLAYLIST'
+      setFullScreen: 'SET_FULL_SCREEN'
     }),
     format(interval) {
       interval = interval | 0
