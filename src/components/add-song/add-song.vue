@@ -7,19 +7,43 @@
           <i class="icon-close"></i>
         </div>
       </div>
-      <div class="search-wrapper"></div>
-      <div class="shortcut"></div>
-      <div class="search-result"></div>
+      <div class="search-box-wrapper">
+        <search-box ref="searchBox" @query="onQueryChange" placeholder="搜索歌曲"></search-box>
+      </div>
+      <div class="shortcut" v-show="!query">
+        <switches :switches="switches" :currentIndex="currentIndex" @switch="switchItem"></switches>
+      </div>
+      <div class="search-result" v-show="query">
+        <suggest :query="query" :showSinger="showSinger"
+                  @select="selectSuggest" @listScroll="blurInput">
+        </suggest>
+      </div>
     </div>
   </transition>
 </template>
 
 <script>
+import SearchBox from 'base/search-box/search-box'
+import {searchMixin} from 'common/js/mixin'
+import Suggest from 'components/suggest/suggest'
+import Switches from 'base/switches/switches'
+
 export default {
   name: 'AddSong',
+  mixins: [searchMixin],
   data() {
     return {
-      showFlag: false
+      showFlag: false,
+      showSinger: false,
+      currentIndex: 0,
+      switches: [
+        {
+          name: '最近播放'
+        },
+        {
+          name: '搜索历史'
+        }
+      ]
     }
   },
   methods: {
@@ -28,7 +52,16 @@ export default {
     },
     hide() {
       this.showFlag = false
+    },
+    selectSuggest() {
+      this.saveSearch()
+    },
+    switchItem(index) {
+      this.currentIndex = index
     }
+  },
+  components: {
+    SearchBox, Suggest, Switches
   }
 }
 </script>

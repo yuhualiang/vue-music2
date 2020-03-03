@@ -1,10 +1,6 @@
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
-
-// import {createSong} from 'common/js/song'
-// import {getPurlUrl} from 'api/song' /* 获取歌曲的播放地址 */
-// import { ERR_OK } from 'api/config'
 
 export const playlistMixin = {
   computed: {
@@ -70,34 +66,34 @@ export const playerMixin = {
   }
 }
 
-// export const searchMixin = {
-//   data() {
-//     return {
-//       query: '',
-//       refreshDelay: 120
-//     }
-//   },
-//   computed: {
-//     ...mapGetters([
-//       'searchHistory'
-//     ])
-//   },
-//   methods: {
-//     onQueryChange(query) {
-//       this.query = query
-//     },
-//     blurInput() {
-//       this.$refs.searchBox.blur()
-//     },
-//     addQuery(query) {
-//       this.$refs.searchBox.setQuery(query)
-//     },
-//     saveSearch() {
-//       this.saveSearchHistory(this.query)
-//     },
-//     ...mapActions([
-//       'saveSearchHistory',
-//       'deleteSearchHistory'
-//     ])
-//   }
-// }
+export const searchMixin = {
+  data() {
+    return {
+      query: '',
+      refreshDelay: 120
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'searchHistory'
+    ])
+  },
+  methods: {
+    onQueryChange(query) {
+      this.query = query
+    },
+    blurInput() {
+      this.$refs.searchBox.blur()
+    },
+    addQuery(query) {
+      this.$refs.searchBox.setQuery(query)
+    },
+    saveSearch() {
+      this.saveSearchHistory(this.query)
+    },
+    ...mapActions([
+      'saveSearchHistory',
+      'deleteSearchHistory'
+    ])
+  }
+}
