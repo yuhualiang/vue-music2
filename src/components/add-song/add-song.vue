@@ -18,6 +18,15 @@
               <song-list @select="selectSong" :songs="playHistory"></song-list>
             </div>
           </scroll>
+          <scroll class="list-scroll" :data="searchHistory" v-if="currentIndex===1">
+            <div class="list-inner">
+              <search-list
+                    @delete="deleteSearchHistory"
+                    @select="addQuery"
+                    :searches="searchHistory">
+              </search-list>
+            </div>
+          </scroll>
         </div>
       </div>
       <div class="search-result" v-show="query">
@@ -37,6 +46,7 @@ import Switches from 'base/switches/switches'
 import Scroll from 'base/scroll/Scroll'
 import {mapGetters, mapActions} from 'vuex'
 import SongList from 'base/song-list/song-list'
+import SearchList from 'base/search-list/search-list'
 import Song from 'common/js/song'
 
 export default {
@@ -86,7 +96,7 @@ export default {
     ])
   },
   components: {
-    SearchBox, Suggest, Switches, Scroll, SongList
+    SearchBox, Suggest, Switches, Scroll, SongList, SearchList
   }
 }
 </script>
