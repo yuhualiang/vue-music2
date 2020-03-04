@@ -94,7 +94,7 @@
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
 import Lyric from 'lyric-parser'
@@ -152,9 +152,6 @@ export default {
       if (newSong.id === oldSong.id) {
         return
       }
-      // if (this.currentLyric) {
-      //   this.currentLyric.stop()
-      // }
       if (this.currentLyric) {
         this.currentLyric.stop()
         this.currentTime = 0
@@ -302,6 +299,7 @@ export default {
     },
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     error() {
       this.songReady = true
@@ -396,6 +394,9 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
     }),
+    ...mapActions([
+      'savePlayHistory'
+    ]),
     format(interval) {
       interval = interval | 0
       let minitues = interval / 60 | 0
