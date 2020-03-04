@@ -2,6 +2,10 @@
   <transition>
     <div class="add-song" v-show="showFlag" @click.stop>
       <div class="header">
+        <div class="to-player" @click="toPlayer">
+          <i class="icon-back"></i>
+          <i class="icon-back"></i>
+        </div>
         <h1 class="title">添加歌曲到列表</h1>
         <div class="close" @click="hide">
           <i class="icon-close"></i>
@@ -13,12 +17,12 @@
       <div class="shortcut" v-show="!query">
         <switches :switches="switches" :currentIndex="currentIndex" @switch="switchItem"></switches>
         <div class="list-wrapper">
-          <scroll class="list-scroll" v-if="currentIndex===0" :data="playHistory">
+          <scroll ref="songList" class="list-scroll" v-if="currentIndex===0" :data="playHistory">
             <div class="list-inner">
               <song-list @select="selectSong" :songs="playHistory"></song-list>
             </div>
           </scroll>
-          <scroll class="list-scroll" :data="searchHistory" v-if="currentIndex===1">
+          <scroll ref="searchList" class="list-scroll" :data="searchHistory" v-if="currentIndex===1">
             <div class="list-inner">
               <search-list
                     @delete="deleteSearchHistory"
@@ -75,9 +79,20 @@ export default {
   methods: {
     show() {
       this.showFlag = true
+      setTimeout(() => {
+        if (this.currentIndex === 0) {
+          this.$refs.songList.refresh()
+        } else {
+          this.$refs.searchList.refresh()
+        }
+      }, 20)
     },
     hide() {
       this.showFlag = false
+    },
+    toPlayer() {
+      this.hide()
+      this.$emit('closePlaylist')
     },
     selectSuggest() {
       this.saveSearch()
@@ -133,7 +148,19 @@ export default {
           padding: 12px
           font-size: 20px
           color: $color-theme
-
+      .to-player
+        position: absolute
+        top 0
+        left 8px
+        font-size 0
+        .icon-back
+          display: inline-block
+          padding: 12px 0
+          font-size: 20px
+          color: $color-theme
+        .icon-back:nth-child(2)
+          position relative
+          left -8px
     .search-box-wrapper
       margin: 20px
     .shortcut
