@@ -56,7 +56,10 @@
             <div class="icon i-left" :class="disableCls"><i @click="prev" class="icon-prev"></i></div>
             <div class="icon i-center" :class="disableCls"><i @click="togglePlaying" class="needsclick" :class="playIcon"></i></div>
             <div class="icon i-right" :class="disableCls"><i @click="next" class="icon-next"></i></div>
-            <div class="icon i-right"><i class="icon icon-not-favorite"></i></div>
+            <div class="icon i-right">
+              <i class="icon" @click="toggleFavorite(currentSong)"
+                 :class="getFavoriteIcon(currentSong)"></i>
+            </div>
           </div>
         </div>
       </div>
