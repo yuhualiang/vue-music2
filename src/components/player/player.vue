@@ -85,7 +85,7 @@
     </transition>
     <playlist ref="playlist"></playlist>
     <audio ref="audio" :src="currentSong.url"
-            @canplay="ready"
+            @play="ready"
             @error="error"
             @timeupdate="updateTime"
             @ended="end">
@@ -180,6 +180,9 @@ export default {
     },
     _getLyric() {
       this.currentSong.getLyric().then((lyric) => {
+        if (this.currentSong.lyric !== lyric) {
+          return
+        }
         this.currentLyric = new Lyric(lyric, this._handleLyric)
         if (this.playing) {
           this.currentLyric.play()
@@ -261,6 +264,7 @@ export default {
       }
       if (this.playlist.length === 1) {
         this._loop()
+        return
       } else {
         let index = this.currentIndex - 1
         if (index === -1) {
@@ -279,6 +283,7 @@ export default {
       }
       if (this.playlist.length === 1) {
         this._loop()
+        return
       } else {
         let index = this.currentIndex + 1
         if (index === this.playlist.length) {
